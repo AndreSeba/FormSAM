@@ -1,0 +1,306 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.purchase-container {
+  min-height: 100vh;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.buy-button {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 1000;
+}
+
+.buy-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.form-card {
+  background: white;
+  border-radius: 16px;
+  padding: 30px 20px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  margin-top: 60px;
+}
+
+.icon-circle {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.check-icon {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+h1 {
+  text-align: center;
+  color: #1a202c;
+  font-size: 24px;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.subtitle {
+  text-align: center;
+  color: #718096;
+  margin-bottom: 25px;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 0 10px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2d3748;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.required {
+  color: #e53e3e;
+}
+
+input[type="text"],
+input[type="email"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.file-button {
+  background: #667eea;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+  text-align: center;
+}
+
+.file-button:hover {
+  background: #5568d3;
+}
+
+.file-name {
+  color: #718096;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.file-hint {
+  margin-top: 6px;
+  color: #a0aec0;
+  font-size: 12px;
+}
+
+.message {
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.message.success {
+  background: #c6f6d5;
+  color: #22543d;
+  border: 1px solid #9ae6b4;
+}
+
+.message.error {
+  background: #fed7d7;
+  color: #742a2a;
+  border: 1px solid #fc8181;
+}
+
+.submit-button {
+  width: 100%;
+  background: linear-gradient(90deg, #4361ee 0%, #f72585 50%, #ff9500 100%);
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .form-card {
+    padding: 25px 18px;
+    margin-top: 70px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .purchase-container {
+    padding: 10px;
+  }
+
+  .buy-button {
+    top: 10px;
+    right: 10px;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .form-card {
+    padding: 25px 16px;
+    margin-top: 65px;
+    border-radius: 12px;
+  }
+
+  .icon-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .check-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    font-size: 13px;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    padding: 11px 12px;
+    font-size: 16px;
+  }
+
+  .file-button {
+    padding: 11px 18px;
+    font-size: 13px;
+  }
+
+  .file-name {
+    font-size: 12px;
+  }
+
+  .submit-button {
+    padding: 13px;
+    font-size: 15px;
+  }
+
+  .message {
+    font-size: 13px;
+    padding: 11px 12px;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 360px) {
+  .form-card {
+    padding: 20px 14px;
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  .buy-button {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+}
