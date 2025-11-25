@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react' // 1. Importamos useRef
+import { Link } from 'react-router-dom'   // 2. Importamos Link
 import { supabase } from '../supabaseClient'
 import './PurchaseForm.css'
 
@@ -11,6 +12,9 @@ export default function PurchaseForm() {
   })
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
+  
+  // Referencia para limpiar el input file sin usar document.getElementById
+  const fileInputRef = useRef(null)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -20,14 +24,15 @@ export default function PurchaseForm() {
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      // Validar tamaño (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         setMessage({ type: 'error', text: 'El archivo no debe superar 5MB' })
+        // Limpiamos el input si el archivo es muy grande
+        if (fileInputRef.current) fileInputRef.current.value = ''
         return
       }
-      // Validar tipo
       if (!file.type.startsWith('image/')) {
         setMessage({ type: 'error', text: 'Solo se permiten imágenes' })
+        if (fileInputRef.current) fileInputRef.current.value = ''
         return
       }
       setFormData(prev => ({ ...prev, comprobante: file }))
@@ -39,7 +44,6 @@ export default function PurchaseForm() {
     e.preventDefault()
     setMessage({ type: '', text: '' })
 
-    // Validaciones
     if (!formData.codigo_referido.trim()) {
       setMessage({ type: 'error', text: 'El código de referido es obligatorio' })
       return
@@ -53,7 +57,7 @@ export default function PurchaseForm() {
     setLoading(true)
 
     try {
-      // 1. Subir imagen a Storage
+      // Sanear el nombre del archivo para evitar caracteres raros
       const fileExt = formData.comprobante.name.split('.').pop()
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
       const filePath = `${fileName}`
@@ -64,12 +68,10 @@ export default function PurchaseForm() {
 
       if (uploadError) throw uploadError
 
-      // 2. Obtener URL pública
       const { data: urlData } = supabase.storage
         .from('comprobantes')
         .getPublicUrl(filePath)
 
-      // 3. Insertar en la base de datos
       const { error: insertError } = await supabase
         .from('purchases')
         .insert([
@@ -83,27 +85,28 @@ export default function PurchaseForm() {
 
       if (insertError) throw insertError
 
-      // Éxito
       setMessage({ 
         type: 'success', 
         text: '¡Compra registrada exitosamente! Pronto verificaremos tu pago.' 
       })
       
-      // Resetear formulario
       setFormData({
         nombre: '',
         email: '',
         codigo_referido: '',
         comprobante: null
       })
-      // Resetear input file
-      document.getElementById('file-input').value = ''
+      
+      // Limpiar el input file usando la referencia (Forma correcta en React)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
 
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error details:', error) // Mejor debug
       setMessage({ 
         type: 'error', 
-        text: 'Error al registrar la compra. Por favor intenta nuevamente.' 
+        text: 'Error al registrar la compra. Intenta nuevamente.' 
       })
     } finally {
       setLoading(false)
@@ -120,13 +123,15 @@ export default function PurchaseForm() {
       >
         Comprar Entrada
       </a>
-      <a 
-        href="/admin" 
+      
+      {/* CAMBIO: Usamos Link en lugar de <a> para navegación interna */}
+      <Link 
+        to="/admin" 
         className="admin-button"
         title="Panel Administrativo"
       >
         🔐
-      </a>
+      </Link>
 
       <div className="form-card">
         <div className="icon-circle">
@@ -139,6 +144,7 @@ export default function PurchaseForm() {
         <p className="subtitle">Ingresa tu código de referido y carga el comprobante de pago.</p>
 
         <form onSubmit={handleSubmit}>
+          {/* ... (Inputs de nombre y email igual que antes) ... */}
           <div className="form-group">
             <label htmlFor="nombre">Nombre (opcional)</label>
             <input
@@ -185,6 +191,7 @@ export default function PurchaseForm() {
             <input
               type="file"
               id="file-input"
+              ref={fileInputRef}  // Agregamos la referencia aquí
               accept="image/*"
               onChange={handleFileChange}
               className="file-input"

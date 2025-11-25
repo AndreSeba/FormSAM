@@ -14,34 +14,78 @@ export default function AdminPanel() {
   const [selectedImage, setSelectedImage] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
 
+  // 1. MEJORA: Manejo de sesión más robusto con listener
   useEffect(() => {
-    checkUser()
+    // Verificar sesión actual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    // Escuchar cambios en la autenticación (Login/Logout automáticos)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
+  // 2. MEJORA: Fetch inicial + Suscripción en Tiempo Real (Realtime)
   useEffect(() => {
-    if (user) {
-      fetchPurchases()
+    if (!user) return
+
+    // Carga inicial de datos
+    const fetchPurchases = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('purchases')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+        setPurchases(data)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchPurchases()
+
+    // Configurar suscripción Realtime
+    const channel = supabase
+      .channel('table-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT', // Escuchar solo nuevas inserciones
+          schema: 'public',
+          table: 'purchases',
+        },
+        (payload) => {
+          // Agregar la nueva compra al principio de la lista instantáneamente
+          setPurchases((currentPurchases) => [payload.new, ...currentPurchases])
+        }
+      )
+      .subscribe()
+
+    // Limpiar suscripción al desmontar
+    return () => {
+      supabase.removeChannel(channel)
     }
   }, [user])
-
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    setUser(user)
-    setLoading(false)
-  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-      
       if (error) throw error
-      setUser(data.user)
+      // No necesitamos setUser aquí, el onAuthStateChange lo hará solo
     } catch (error) {
       setError('Credenciales incorrectas')
     }
@@ -49,25 +93,7 @@ export default function AdminPanel() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    setUser(null)
-    setPurchases([])
-  }
-
-  const fetchPurchases = async () => {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from('purchases')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setPurchases(data)
-    } catch (error) {
-      console.error('Error:', error)
-    } finally {
-      setLoading(false)
-    }
+    // No necesitamos setUser(null), el listener lo maneja
   }
 
   const exportToExcel = () => {
@@ -99,7 +125,10 @@ export default function AdminPanel() {
   if (loading) {
     return (
       <div className="admin-container">
-        <div className="loading">Cargando...</div>
+        <div className="loading">
+            <div className="spinner"></div> {/* Sugiero agregar CSS para spinner */}
+            Cargando...
+        </div>
       </div>
     )
   }
@@ -141,7 +170,15 @@ export default function AdminPanel() {
   return (
     <div className="admin-container">
       <div className="admin-header">
-        <h1>Panel Administrativo</h1>
+        <div className="title-section">
+            <h1>Panel Administrativo</h1>
+            {/* Indicador de conexión en vivo */}
+            <div className="live-indicator">
+                <span className="pulse-dot"></span>
+                En vivo
+            </div>
+        </div>
+        
         <div className="header-actions">
           <button onClick={exportToExcel} className="export-button">
             📊 Exportar a Excel
@@ -199,7 +236,7 @@ export default function AdminPanel() {
                 </tr>
               ) : (
                 filteredPurchases.map((purchase) => (
-                  <tr key={purchase.id}>
+                  <tr key={purchase.id} className="fade-in-row"> {/* Clase para animación */}
                     <td>{new Date(purchase.created_at).toLocaleString('es-ES')}</td>
                     <td>{purchase.nombre || 'N/A'}</td>
                     <td>{purchase.email || 'N/A'}</td>

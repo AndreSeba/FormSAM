@@ -527,3 +527,70 @@ tbody tr:last-child td {
     min-width: 450px;
   }
 }
+
+/* ... Tu CSS anterior ... */
+
+/* Nuevo: Estilos para el indicador En Vivo */
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #48bb78; /* Verde vivo */
+  border-radius: 50%;
+  box-shadow: 0 0 0 rgba(72, 187, 120, 0.7);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(72, 187, 120, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+  }
+}
+
+/* Nuevo: Animación para cuando entra una fila nueva en Realtime */
+@keyframes fadeInRow {
+  from {
+    background-color: #ebf8ff;
+    transform: translateX(-10px);
+  }
+  to {
+    background-color: transparent;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-row {
+  animation: fadeInRow 1s ease-out;
+}
+
+/* Tablet ajuste para el titulo */
+@media (max-width: 768px) {
+  .title-section {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+}
